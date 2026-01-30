@@ -46,30 +46,30 @@ export function ShareDialog({ calendar, onClose }: ShareDialogProps) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-800">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-              <Link2 className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-100 dark:border-gray-800">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
+              <Link2 className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600 dark:text-primary-400" />
             </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <div className="min-w-0">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
                 Share Calendar
               </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                 {calendar.events.length} event{calendar.events.length !== 1 ? 's' : ''}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="btn-icon !p-2 !rounded-lg"
+            className="btn-icon !p-2 !rounded-lg flex-shrink-0"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-5 sm:space-y-6">
           {/* Share URL */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -84,17 +84,17 @@ export function ShareDialog({ calendar, onClose }: ShareDialogProps) {
               />
               <button
                 onClick={handleCopy}
-                className={`btn-primary !px-4 ${copied ? '!bg-emerald-500 !from-emerald-500 !to-emerald-600' : ''}`}
+                className={`btn-primary !px-3 sm:!px-4 flex-shrink-0 ${copied ? '!bg-emerald-500 !from-emerald-500 !to-emerald-600' : ''}`}
               >
                 {copied ? (
                   <>
                     <Check className="w-4 h-4" />
-                    <span className="hidden sm:inline">Copied!</span>
+                    <span className="sr-only sm:not-sr-only">Copied!</span>
                   </>
                 ) : (
                   <>
                     <Copy className="w-4 h-4" />
-                    <span className="hidden sm:inline">Copy</span>
+                    <span className="sr-only sm:not-sr-only">Copy</span>
                   </>
                 )}
               </button>
@@ -110,9 +110,9 @@ export function ShareDialog({ calendar, onClose }: ShareDialogProps) {
               </div>
               
               {/* Password Protection */}
-              <div className="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50">
                 <div className="flex items-center gap-3">
-                  <Lock className="w-5 h-5 text-gray-400" />
+                  <Lock className="w-5 h-5 text-gray-400 flex-shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">Password protection</p>
                     <p className="text-xs text-gray-500">Require password to view</p>
@@ -123,14 +123,14 @@ export function ShareDialog({ calendar, onClose }: ShareDialogProps) {
                   value={proSettings.password || ''}
                   onChange={(e) => setProSettings({ password: e.target.value || null })}
                   placeholder="Set password"
-                  className="input !w-32 !py-2 text-sm"
+                  className="input !w-full sm:!w-32 !py-2 text-sm"
                 />
               </div>
 
               {/* Link Expiration */}
-              <div className="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50">
                 <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-gray-400" />
+                  <Clock className="w-5 h-5 text-gray-400 flex-shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">Link expiration</p>
                     <p className="text-xs text-gray-500">Auto-expire after date</p>
@@ -140,14 +140,14 @@ export function ShareDialog({ calendar, onClose }: ShareDialogProps) {
                   type="date"
                   value={proSettings.expiresAt || ''}
                   onChange={(e) => setProSettings({ expiresAt: e.target.value || null })}
-                  className="input !w-36 !py-2 text-sm"
+                  className="input !w-full sm:!w-36 !py-2 text-sm"
                 />
               </div>
 
               {/* Hide Branding */}
-              <label className="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 cursor-pointer">
+              <label className="flex items-center justify-between gap-3 p-3 sm:p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 cursor-pointer">
                 <div className="flex items-center gap-3">
-                  <Eye className="w-5 h-5 text-gray-400" />
+                  <Eye className="w-5 h-5 text-gray-400 flex-shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">Hide branding</p>
                     <p className="text-xs text-gray-500">Remove LinkCal logo</p>
@@ -157,6 +157,7 @@ export function ShareDialog({ calendar, onClose }: ShareDialogProps) {
                   type="checkbox"
                   checked={proSettings.hideBranding}
                   onChange={(e) => setProSettings({ hideBranding: e.target.checked })}
+                  className="flex-shrink-0"
                 />
               </label>
             </div>
@@ -172,14 +173,14 @@ export function ShareDialog({ calendar, onClose }: ShareDialogProps) {
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                   Unlock password protection, link expiration, and hide branding.
                 </p>
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                   <a
                     href="#upgrade"
-                    className="btn-primary text-sm"
+                    className="btn-primary text-sm whitespace-nowrap"
                   >
-                    Upgrade for $5/mo
+                    Upgrade to Pro
                   </a>
-                  <span className="text-sm text-gray-500">or $29 lifetime</span>
+                  <span className="text-xs sm:text-sm text-gray-500">$5/mo or $29 lifetime</span>
                 </div>
               </div>
             </div>
@@ -198,7 +199,7 @@ export function ShareDialog({ calendar, onClose }: ShareDialogProps) {
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-800">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-800">
           <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
             <strong>Privacy:</strong> Your calendar is encoded directly in the URL. 
             No data is stored on our servers. Anyone with the link can view it.

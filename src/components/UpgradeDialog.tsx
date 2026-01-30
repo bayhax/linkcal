@@ -104,34 +104,34 @@ export function UpgradeDialog({ onClose }: UpgradeDialogProps) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header with gradient */}
-        <div className="relative px-6 py-8 bg-gradient-to-br from-primary-500 to-purple-600 overflow-hidden">
+        <div className="relative px-4 sm:px-6 py-6 sm:py-8 bg-gradient-to-br from-primary-500 to-purple-600 overflow-hidden">
           {/* Decorative elements */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
           
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
+            className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
 
           <div className="relative">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 text-white text-sm font-medium mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 text-white text-sm font-medium mb-3 sm:mb-4">
               <Sparkles className="w-4 h-4" />
               Upgrade to Pro
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2">
               Unlock Pro Features
             </h2>
-            <p className="text-white/80">
+            <p className="text-sm sm:text-base text-white/80">
               Get more control over your shared calendars
             </p>
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-5 sm:space-y-6">
           {/* Features */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {features.map((feature) => (
@@ -157,20 +157,20 @@ export function UpgradeDialog({ onClose }: UpgradeDialogProps) {
             {/* Monthly */}
             <button
               onClick={() => setSelectedPlan('monthly')}
-              className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+              className={`w-full p-3 sm:p-4 rounded-xl border-2 text-left transition-all ${
                 selectedPlan === 'monthly'
                   ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
                   : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0">
                   <p className="font-semibold text-gray-900 dark:text-white">Monthly</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Billed monthly, cancel anytime</p>
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">Cancel anytime</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">$5</p>
-                  <p className="text-sm text-gray-500">/month</p>
+                <div className="text-right flex-shrink-0">
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">$5</p>
+                  <p className="text-xs sm:text-sm text-gray-500">/month</p>
                 </div>
               </div>
             </button>
@@ -178,23 +178,23 @@ export function UpgradeDialog({ onClose }: UpgradeDialogProps) {
             {/* Lifetime */}
             <button
               onClick={() => setSelectedPlan('lifetime')}
-              className={`w-full p-4 rounded-xl border-2 text-left transition-all relative ${
+              className={`w-full p-3 sm:p-4 rounded-xl border-2 text-left transition-all relative ${
                 selectedPlan === 'lifetime'
                   ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
                   : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
-              <div className="absolute -top-2.5 right-4 px-2 py-0.5 rounded-full bg-emerald-500 text-white text-xs font-medium">
+              <div className="absolute -top-2.5 right-3 sm:right-4 px-2 py-0.5 rounded-full bg-emerald-500 text-white text-xs font-medium whitespace-nowrap">
                 Best Value
               </div>
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0">
                   <p className="font-semibold text-gray-900 dark:text-white">Lifetime</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">One-time payment, forever access</p>
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">One-time, forever access</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">$29</p>
-                  <p className="text-sm text-gray-500">one-time</p>
+                <div className="text-right flex-shrink-0">
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">$29</p>
+                  <p className="text-xs sm:text-sm text-gray-500">one-time</p>
                 </div>
               </div>
             </button>
@@ -218,14 +218,14 @@ export function UpgradeDialog({ onClose }: UpgradeDialogProps) {
           <button
             onClick={handleCheckout}
             disabled={isLoading}
-            className="btn-primary w-full py-3"
+            className="btn-primary w-full py-3 whitespace-nowrap"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
               <>
                 <span>Continue to Checkout</span>
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-5 h-5 flex-shrink-0" />
               </>
             )}
           </button>

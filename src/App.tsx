@@ -158,27 +158,39 @@ function App() {
 
             <button
               onClick={() => setShowForm(true)}
-              className="btn-primary text-base px-6 py-3"
+              className="btn-primary text-base px-5 sm:px-6 py-3 whitespace-nowrap"
             >
-              <Plus className="w-5 h-5" />
+              <Plus className="w-5 h-5 flex-shrink-0" />
               Create Calendar
             </button>
 
             {/* Feature pills */}
-            <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-sm text-gray-600 dark:text-gray-400">
-                <Shield className="w-4 h-4" />
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mt-8">
+              <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                <Shield className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                 Privacy-first
               </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-sm text-gray-600 dark:text-gray-400">
-                <CalendarIcon className="w-4 h-4" />
+              <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                <CalendarIcon className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                 Export to any calendar
               </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-sm text-gray-600 dark:text-gray-400">
-                <Clock className="w-4 h-4" />
+              <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                <Clock className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                 Works forever
               </div>
             </div>
+
+            {/* Pro teaser on hero */}
+            {!isPro && (
+              <button
+                onClick={() => setShowUpgrade(true)}
+                className="mt-8 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary-100 to-purple-100 dark:from-primary-900/40 dark:to-purple-900/40 border border-primary-200 dark:border-primary-700/50 text-sm font-medium text-primary-700 dark:text-primary-300 hover:border-primary-300 dark:hover:border-primary-600 transition-colors"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>Pro: Password protect & more</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            )}
           </div>
         )}
 
@@ -226,22 +238,22 @@ function App() {
 
         {/* Action buttons */}
         {!isViewing && calendar.events.length > 0 && (
-          <div className="mt-8 flex flex-col sm:flex-row gap-3 animate-fade-in">
+          <div className="mt-8 flex flex-row gap-2 sm:gap-3 animate-fade-in">
             {!showForm && (
               <button
                 onClick={() => setShowForm(true)}
-                className="btn-secondary flex-1"
+                className="btn-secondary flex-1 min-w-0"
               >
-                <Plus className="w-5 h-5" />
-                Add Event
+                <Plus className="w-5 h-5 flex-shrink-0" />
+                <span className="truncate">Add Event</span>
               </button>
             )}
             <button
               onClick={() => setShowShare(true)}
-              className="btn-primary flex-1"
+              className="btn-primary flex-1 min-w-0"
             >
-              <Share2 className="w-5 h-5" />
-              Share Calendar
+              <Share2 className="w-5 h-5 flex-shrink-0" />
+              <span className="truncate">Share</span>
             </button>
           </div>
         )}
@@ -252,16 +264,16 @@ function App() {
             onClick={() => setShowUpgrade(true)}
             className="mt-6 w-full p-4 rounded-2xl bg-gradient-to-r from-primary-50 to-purple-50 dark:from-primary-950/30 dark:to-purple-950/30 border border-primary-200 dark:border-primary-800/50 flex items-center justify-between group hover:border-primary-300 dark:hover:border-primary-700 transition-colors animate-fade-in"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center flex-shrink-0">
                 <Sparkles className="w-5 h-5 text-primary-600 dark:text-primary-400" />
               </div>
-              <div className="text-left">
+              <div className="text-left min-w-0">
                 <p className="font-medium text-gray-900 dark:text-white">Upgrade to Pro</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Password protect, auto-expire, hide branding</p>
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">Password protect, auto-expire & more</p>
               </div>
             </div>
-            <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 group-hover:translate-x-1 transition-all" />
+            <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 group-hover:translate-x-1 transition-all flex-shrink-0" />
           </button>
         )}
 

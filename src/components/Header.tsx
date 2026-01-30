@@ -41,10 +41,10 @@ export function Header({ showBranding = true }: HeaderProps) {
             {!isPro && (
               <a
                 href="#upgrade"
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
               >
                 <Sparkles className="w-4 h-4" />
-                <span>Pro</span>
+                <span className="hidden xs:inline">Pro</span>
               </a>
             )}
             

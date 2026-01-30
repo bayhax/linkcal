@@ -84,9 +84,9 @@ export function EventForm({ onAdd, onCancel }: EventFormProps) {
       </div>
       
       {/* Date & Time Row */}
-      <div className="flex flex-wrap items-start gap-4 mb-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
         {/* Date */}
-        <div className="flex-1 min-w-[140px]">
+        <div>
           <label className="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
             <CalendarDays className="w-4 h-4" />
             Date
@@ -102,7 +102,7 @@ export function EventForm({ onAdd, onCancel }: EventFormProps) {
         
         {/* Time Range */}
         {!allDay && (
-          <div className="flex-1 min-w-[200px]">
+          <div>
             <label className="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
               <Clock className="w-4 h-4" />
               Time
@@ -112,14 +112,14 @@ export function EventForm({ onAdd, onCancel }: EventFormProps) {
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                className="input flex-1"
+                className="input flex-1 min-w-0"
               />
-              <span className="text-gray-400">→</span>
+              <span className="text-gray-400 flex-shrink-0">→</span>
               <input
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                className="input flex-1"
+                className="input flex-1 min-w-0"
               />
             </div>
           </div>
@@ -187,9 +187,9 @@ export function EventForm({ onAdd, onCancel }: EventFormProps) {
       <button
         type="submit"
         disabled={!title.trim()}
-        className="btn-primary w-full"
+        className="btn-primary w-full whitespace-nowrap"
       >
-        <Plus className="w-5 h-5" />
+        <Plus className="w-5 h-5 flex-shrink-0" />
         <span>Add Event</span>
       </button>
     </form>
