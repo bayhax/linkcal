@@ -1,50 +1,63 @@
 import { useEffect, useState } from 'react';
-import { Share2, Plus } from 'lucide-react';
+import { Share2, Plus, Calendar as CalendarIcon, Zap, Shield, Clock, ArrowRight, Sparkles } from 'lucide-react';
 import { Header } from './components/Header';
 import { EventForm } from './components/EventForm';
 import { EventList } from './components/EventList';
 import { ShareDialog } from './components/ShareDialog';
-import { useCalendarStore, useThemeStore } from './store/calendar';
-import { getCalendarFromUrl, setCalendarToUrl } from './utils/url';
-import { isEncrypted } from './utils/crypto';
-import type { CalendarEvent } from './types';
+import { UpgradeDialog } from './components/UpgradeDialog';
+import { PasswordDialog } from './components/PasswordDialog';
+import { useCalendarStore, useThemeStore, useProStore } from './store/calendar';
+import { getCalendarFromUrl, checkLinkExpired } from './utils/url';
+import { isEncrypted, decryptData } from './utils/crypto';
+import type { CalendarEvent, Calendar as CalendarType } from './types';
 
 function App() {
-  const { calendar, setCalendar, setTitle, addEvent, removeEvent } = useCalendarStore();
+  const { calendar, setCalendar, setTitle, addEvent, removeEvent, reset } = useCalendarStore();
   const { dark } = useThemeStore();
+  const { isPro } = useProStore();
   const [showForm, setShowForm] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const [isViewing, setIsViewing] = useState(false);
   const [needsPassword, setNeedsPassword] = useState(false);
+  const [isExpired, setIsExpired] = useState(false);
+  const [hideBranding, setHideBranding] = useState(false);
 
   // Apply dark mode
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark);
   }, [dark]);
 
+  // Handle upgrade hash
+  useEffect(() => {
+    if (window.location.hash === '#upgrade') {
+      setShowUpgrade(true);
+    }
+  }, []);
+
   // Load calendar from URL on mount
   useEffect(() => {
     const hash = window.location.hash.slice(1);
-    if (hash) {
+    if (hash && hash !== 'upgrade') {
       if (isEncrypted(hash)) {
         setNeedsPassword(true);
         setIsViewing(true);
       } else {
         const loaded = getCalendarFromUrl();
         if (loaded) {
+          // Check if link is expired
+          if (checkLinkExpired(loaded)) {
+            setIsExpired(true);
+            setIsViewing(true);
+            return;
+          }
           setCalendar(loaded);
           setIsViewing(true);
+          setHideBranding(loaded.pro?.hideBranding || false);
         }
       }
     }
   }, [setCalendar]);
-
-  // Update URL when calendar changes (only in edit mode)
-  useEffect(() => {
-    if (!isViewing && calendar.events.length > 0) {
-      setCalendarToUrl(calendar);
-    }
-  }, [calendar, isViewing]);
 
   const handleAddEvent = (event: CalendarEvent) => {
     addEvent(event);
@@ -52,24 +65,63 @@ function App() {
   };
 
   const handleCreateNew = () => {
+    reset();
     window.location.href = '/';
   };
 
+  const handlePasswordSubmit = (password: string) => {
+    const hash = window.location.hash.slice(1);
+    const encryptedPart = hash.slice(2); // Remove 'e:' prefix
+    const decryptedJson = decryptData(encryptedPart, password);
+    
+    if (decryptedJson) {
+      try {
+        const loaded = JSON.parse(decryptedJson) as CalendarType;
+        if (checkLinkExpired(loaded)) {
+          setIsExpired(true);
+          setNeedsPassword(false);
+          return;
+        }
+        setCalendar(loaded);
+        setNeedsPassword(false);
+        setHideBranding(loaded.pro?.hideBranding || false);
+      } catch {
+        alert('Invalid password');
+      }
+    } else {
+      alert('Invalid password');
+    }
+  };
+
+  // Password dialog
   if (needsPassword) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
+        <Header showBranding={!hideBranding} />
+        <PasswordDialog onSubmit={handlePasswordSubmit} />
+      </div>
+    );
+  }
+
+  // Expired link
+  if (isExpired) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
         <Header />
-        <main className="max-w-lg mx-auto px-4 py-12 text-center">
-          <div className="p-8 bg-white dark:bg-slate-800 rounded-xl shadow-md">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Protected Calendar
+        <main className="flex-1 flex items-center justify-center px-4">
+          <div className="card p-8 text-center max-w-md animate-fade-in-up">
+            <div className="w-16 h-16 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mx-auto mb-4">
+              <Clock className="w-8 h-8 text-amber-600 dark:text-amber-400" />
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              Link Expired
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              This calendar is password protected. Enter the password to view.
+              This calendar link has expired and is no longer accessible.
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-500">
-              Password protection is a Pro feature. Coming soon!
-            </p>
+            <button onClick={handleCreateNew} className="btn-primary">
+              Create New Calendar
+            </button>
           </div>
         </main>
       </div>
@@ -77,49 +129,79 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
-      <Header />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
+      <Header showBranding={!hideBranding} />
       
-      <main className="max-w-2xl mx-auto px-4 py-8">
+      <main className="flex-1 w-full max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* Hero section for new users */}
         {!isViewing && calendar.events.length === 0 && !showForm && (
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
-              Share calendars instantly
+          <div className="text-center mb-12 animate-fade-in-up">
+            {/* Decorative gradient */}
+            <div className="absolute inset-x-0 top-20 -z-10 transform-gpu overflow-hidden blur-3xl" aria-hidden="true">
+              <div className="relative left-1/2 -translate-x-1/2 aspect-[1155/678] w-[36rem] bg-gradient-to-tr from-primary-300 to-purple-300 dark:from-primary-900 dark:to-purple-900 opacity-20" />
+            </div>
+
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-sm font-medium mb-6">
+              <Zap className="w-4 h-4" />
+              No signup required
+            </div>
+
+            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight text-balance">
+              Share calendars
+              <br />
+              <span className="text-gradient">instantly</span>
             </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
-              Create events, get a link, share with anyone. No signup required.
+            
+            <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
+              Create events, get a link, share with anyone. Your data stays in the URL—nothing stored on servers.
             </p>
+
             <button
               onClick={() => setShowForm(true)}
-              className="inline-flex items-center px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg shadow-md transition-colors"
+              className="btn-primary text-base px-6 py-3"
             >
-              <Plus size={20} className="mr-2" />
+              <Plus className="w-5 h-5" />
               Create Calendar
             </button>
+
+            {/* Feature pills */}
+            <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-sm text-gray-600 dark:text-gray-400">
+                <Shield className="w-4 h-4" />
+                Privacy-first
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-sm text-gray-600 dark:text-gray-400">
+                <CalendarIcon className="w-4 h-4" />
+                Export to any calendar
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-sm text-gray-600 dark:text-gray-400">
+                <Clock className="w-4 h-4" />
+                Works forever
+              </div>
+            </div>
           </div>
         )}
 
         {/* Calendar title input */}
         {!isViewing && (calendar.events.length > 0 || showForm) && (
-          <div className="mb-6">
+          <div className="mb-8 animate-fade-in">
             <input
               type="text"
               value={calendar.title || ''}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Calendar title (optional)"
-              className="w-full px-4 py-3 text-lg border-0 border-b-2 border-gray-200 dark:border-gray-700 bg-transparent focus:border-primary-500 focus:ring-0 text-gray-900 dark:text-white placeholder-gray-400"
+              className="input-borderless text-2xl font-semibold"
             />
           </div>
         )}
 
         {/* Viewing mode header */}
         {isViewing && (
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          <div className="mb-8 animate-fade-in-up">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
               {calendar.title || 'Shared Calendar'}
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-500 dark:text-gray-400">
               {calendar.events.length} event{calendar.events.length !== 1 ? 's' : ''}
             </p>
           </div>
@@ -127,7 +209,7 @@ function App() {
 
         {/* Event form */}
         {showForm && !isViewing && (
-          <div className="mb-6">
+          <div className="mb-8">
             <EventForm
               onAdd={handleAddEvent}
               onCancel={() => setShowForm(false)}
@@ -144,34 +226,53 @@ function App() {
 
         {/* Action buttons */}
         {!isViewing && calendar.events.length > 0 && (
-          <div className="mt-6 flex flex-col sm:flex-row gap-3">
+          <div className="mt-8 flex flex-col sm:flex-row gap-3 animate-fade-in">
             {!showForm && (
               <button
                 onClick={() => setShowForm(true)}
-                className="flex-1 flex items-center justify-center px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
+                className="btn-secondary flex-1"
               >
-                <Plus size={20} className="mr-2" />
+                <Plus className="w-5 h-5" />
                 Add Event
               </button>
             )}
             <button
               onClick={() => setShowShare(true)}
-              className="flex-1 flex items-center justify-center px-4 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg shadow-sm transition-colors"
+              className="btn-primary flex-1"
             >
-              <Share2 size={20} className="mr-2" />
+              <Share2 className="w-5 h-5" />
               Share Calendar
             </button>
           </div>
         )}
 
+        {/* Pro upsell for non-pro users with calendars */}
+        {!isViewing && !isPro && calendar.events.length > 0 && (
+          <button
+            onClick={() => setShowUpgrade(true)}
+            className="mt-6 w-full p-4 rounded-2xl bg-gradient-to-r from-primary-50 to-purple-50 dark:from-primary-950/30 dark:to-purple-950/30 border border-primary-200 dark:border-primary-800/50 flex items-center justify-between group hover:border-primary-300 dark:hover:border-primary-700 transition-colors animate-fade-in"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              </div>
+              <div className="text-left">
+                <p className="font-medium text-gray-900 dark:text-white">Upgrade to Pro</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Password protect, auto-expire, hide branding</p>
+              </div>
+            </div>
+            <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 group-hover:translate-x-1 transition-all" />
+          </button>
+        )}
+
         {/* Create new button for viewers */}
         {isViewing && (
-          <div className="mt-6 text-center">
+          <div className="mt-8 text-center animate-fade-in">
             <button
               onClick={handleCreateNew}
-              className="inline-flex items-center px-4 py-2 text-sm text-primary-600 dark:text-primary-400 hover:underline"
+              className="btn-ghost"
             >
-              <Plus size={16} className="mr-1" />
+              <Plus className="w-4 h-4" />
               Create your own calendar
             </button>
           </div>
@@ -179,30 +280,40 @@ function App() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto py-6 text-center text-sm text-gray-500 dark:text-gray-500">
-        <p>
-          Powered by{' '}
-          <a href="/" className="text-primary-600 hover:underline">
-            LinkCal
-          </a>
-          {' · '}
-          <a
-            href="https://github.com/bayhax/linkcal"
-            className="hover:underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Open Source
-          </a>
-        </p>
-      </footer>
+      {!hideBranding && (
+        <footer className="py-8 text-center">
+          <div className="divider mb-8" />
+          <p className="text-sm text-gray-500 dark:text-gray-500">
+            Powered by{' '}
+            <a href="/" className="font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+              LinkCal
+            </a>
+            {' · '}
+            <a
+              href="https://github.com/bayhax/linkcal"
+              className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open Source
+            </a>
+          </p>
+        </footer>
+      )}
 
-      {/* Share dialog */}
+      {/* Dialogs */}
       {showShare && (
         <ShareDialog
           calendar={calendar}
           onClose={() => setShowShare(false)}
         />
+      )}
+      
+      {showUpgrade && (
+        <UpgradeDialog onClose={() => {
+          setShowUpgrade(false);
+          window.history.replaceState(null, '', window.location.pathname);
+        }} />
       )}
     </div>
   );

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import type { Calendar, CalendarEvent } from '../types';
+import { persist } from 'zustand/middleware';
+import type { Calendar, CalendarEvent, ProSettings } from '../types';
 
 interface CalendarState {
   calendar: Calendar;
@@ -10,6 +11,7 @@ interface CalendarState {
   updateEvent: (id: string, event: Partial<CalendarEvent>) => void;
   removeEvent: (id: string) => void;
   clearEvents: () => void;
+  reset: () => void;
 }
 
 const defaultCalendar: Calendar = {
@@ -58,17 +60,79 @@ export const useCalendarStore = create<CalendarState>((set) => ({
   clearEvents: () => set((state) => ({
     calendar: { ...state.calendar, events: [] }
   })),
+
+  reset: () => set({ calendar: defaultCalendar }),
 }));
 
-// Theme store
+// Theme store with persistence
 interface ThemeState {
   dark: boolean;
   toggle: () => void;
   setDark: (dark: boolean) => void;
 }
 
-export const useThemeStore = create<ThemeState>((set) => ({
-  dark: window.matchMedia('(prefers-color-scheme: dark)').matches,
-  toggle: () => set((state) => ({ dark: !state.dark })),
-  setDark: (dark) => set({ dark }),
-}));
+export const useThemeStore = create<ThemeState>()(
+  persist(
+    (set) => ({
+      dark: typeof window !== 'undefined' 
+        ? window.matchMedia('(prefers-color-scheme: dark)').matches 
+        : false,
+      toggle: () => set((state) => ({ dark: !state.dark })),
+      setDark: (dark) => set({ dark }),
+    }),
+    {
+      name: 'linkcal-theme',
+    }
+  )
+);
+
+// Pro features store
+interface ProState {
+  isPro: boolean;
+  proSettings: ProSettings;
+  subscriptionId: string | null;
+  expiresAt: string | null;
+  setIsPro: (isPro: boolean) => void;
+  setProSettings: (settings: Partial<ProSettings>) => void;
+  setSubscription: (id: string, expires: string) => void;
+  clearSubscription: () => void;
+}
+
+const defaultProSettings: ProSettings = {
+  password: null,
+  expiresAt: null,
+  hideBranding: false,
+};
+
+export const useProStore = create<ProState>()(
+  persist(
+    (set) => ({
+      isPro: false,
+      proSettings: defaultProSettings,
+      subscriptionId: null,
+      expiresAt: null,
+      
+      setIsPro: (isPro) => set({ isPro }),
+      
+      setProSettings: (settings) => set((state) => ({
+        proSettings: { ...state.proSettings, ...settings }
+      })),
+      
+      setSubscription: (id, expires) => set({
+        isPro: true,
+        subscriptionId: id,
+        expiresAt: expires,
+      }),
+      
+      clearSubscription: () => set({
+        isPro: false,
+        subscriptionId: null,
+        expiresAt: null,
+        proSettings: defaultProSettings,
+      }),
+    }),
+    {
+      name: 'linkcal-pro',
+    }
+  )
+);
