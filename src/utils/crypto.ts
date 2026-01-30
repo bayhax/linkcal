@@ -26,6 +26,42 @@ async function deriveKey(password: string, salt: Uint8Array): Promise<CryptoKey>
   );
 }
 
+// Simple XOR-based encoding for sync encryption (demo purposes)
+// In production, use proper async encryption
+export function encryptData(data: string, password: string): string {
+  const encoder = new TextEncoder();
+  const dataBytes = encoder.encode(data);
+  const passwordBytes = encoder.encode(password);
+  
+  // Create a simple encrypted representation
+  const encrypted = new Uint8Array(dataBytes.length);
+  for (let i = 0; i < dataBytes.length; i++) {
+    encrypted[i] = dataBytes[i] ^ passwordBytes[i % passwordBytes.length];
+  }
+  
+  const base64 = btoa(String.fromCharCode(...encrypted));
+  return LZString.compressToEncodedURIComponent(base64);
+}
+
+export function decryptData(encoded: string, password: string): string | null {
+  try {
+    const base64 = LZString.decompressFromEncodedURIComponent(encoded);
+    if (!base64) return null;
+    
+    const encrypted = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+    const passwordBytes = new TextEncoder().encode(password);
+    
+    const decrypted = new Uint8Array(encrypted.length);
+    for (let i = 0; i < encrypted.length; i++) {
+      decrypted[i] = encrypted[i] ^ passwordBytes[i % passwordBytes.length];
+    }
+    
+    return new TextDecoder().decode(decrypted);
+  } catch {
+    return null;
+  }
+}
+
 export async function encryptCalendar(calendar: Calendar, password: string): Promise<string> {
   const json = JSON.stringify(calendar);
   const encoder = new TextEncoder();

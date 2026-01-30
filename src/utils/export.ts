@@ -143,3 +143,13 @@ export function generateYahooCalendarUrl(event: CalendarEvent): string {
   
   return `https://calendar.yahoo.com/?${params.toString()}`;
 }
+
+export function generateIcsDataUrl(event: CalendarEvent): string {
+  const calendar: Calendar = {
+    v: 1,
+    title: event.title,
+    events: [event],
+  };
+  const ics = generateICS(calendar);
+  return `data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`;
+}

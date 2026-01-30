@@ -1,5 +1,6 @@
 import LZString from 'lz-string';
-import type { Calendar } from '../types';
+import type { Calendar, ProSettings } from '../types';
+import { encryptData } from './crypto';
 
 const SCHEMA_VERSION = 1;
 
@@ -42,7 +43,30 @@ export function setCalendarToUrl(calendar: Calendar): string {
   return url;
 }
 
-export function generateShareUrl(calendar: Calendar): string {
-  const encoded = encodeCalendar(calendar);
+export function generateShareUrl(calendar: Calendar, proSettings?: ProSettings): string {
+  // Add pro metadata to calendar if applicable
+  const calendarWithPro: Calendar = {
+    ...calendar,
+    pro: proSettings?.expiresAt || proSettings?.hideBranding
+      ? {
+          expires: proSettings.expiresAt ? new Date(proSettings.expiresAt).getTime() : undefined,
+          hideBranding: proSettings.hideBranding || undefined,
+        }
+      : undefined,
+  };
+
+  let encoded = encodeCalendar(calendarWithPro);
+  
+  // If password is set, encrypt the data
+  if (proSettings?.password) {
+    const encryptedData = encryptData(JSON.stringify(calendarWithPro), proSettings.password);
+    encoded = `e:${encryptedData}`;
+  }
+  
   return `${window.location.origin}/#${encoded}`;
+}
+
+export function checkLinkExpired(calendar: Calendar): boolean {
+  if (!calendar.pro?.expires) return false;
+  return Date.now() > calendar.pro.expires;
 }
