@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { 
   Copy, 
   Check, 
@@ -8,21 +8,29 @@ import {
   Sparkles,
   Lock,
   Clock,
-  Eye
+  Eye,
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
 import type { Calendar } from '../types';
 import { generateShareUrl } from '../utils/url';
 import { downloadICS } from '../utils/export';
-import { useProStore } from '../store/calendar';
+import { useProStore, useProFeature } from '../store/calendar';
 
 interface ShareDialogProps {
   calendar: Calendar;
   onClose: () => void;
+  onUpgradeClick?: () => void;
 }
 
-export function ShareDialog({ calendar, onClose }: ShareDialogProps) {
+export function ShareDialog({ calendar, onClose, onUpgradeClick }: ShareDialogProps) {
   const [copied, setCopied] = useState(false);
+  const [verifyingFeature, setVerifyingFeature] = useState<string | null>(null);
+  const [featureError, setFeatureError] = useState<string | null>(null);
+  
   const { isPro, proSettings, setProSettings } = useProStore();
+  const { requirePro } = useProFeature();
+  
   const shareUrl = generateShareUrl(calendar, proSettings);
 
   const handleCopy = async () => {
@@ -37,6 +45,43 @@ export function ShareDialog({ calendar, onClose }: ShareDialogProps) {
 
   const handleDownload = () => {
     downloadICS(calendar);
+  };
+
+  // Wrapper for Pro features that verifies license first
+  const withProVerification = useCallback(async (
+    featureName: string,
+    action: () => void
+  ) => {
+    setVerifyingFeature(featureName);
+    setFeatureError(null);
+    
+    const verified = await requirePro();
+    
+    if (verified) {
+      action();
+    } else {
+      setFeatureError('Pro license required. Please activate your license.');
+    }
+    
+    setVerifyingFeature(null);
+  }, [requirePro]);
+
+  const handlePasswordChange = async (value: string) => {
+    await withProVerification('password', () => {
+      setProSettings({ password: value || null });
+    });
+  };
+
+  const handleExpirationChange = async (value: string) => {
+    await withProVerification('expiration', () => {
+      setProSettings({ expiresAt: value || null });
+    });
+  };
+
+  const handleBrandingChange = async (checked: boolean) => {
+    await withProVerification('branding', () => {
+      setProSettings({ hideBranding: checked });
+    });
   };
 
   return (
@@ -101,6 +146,22 @@ export function ShareDialog({ calendar, onClose }: ShareDialogProps) {
             </div>
           </div>
 
+          {/* Feature verification error */}
+          {featureError && (
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 text-sm">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span className="flex-1">{featureError}</span>
+              {onUpgradeClick && (
+                <button
+                  onClick={onUpgradeClick}
+                  className="text-xs font-medium underline hover:no-underline"
+                >
+                  Activate
+                </button>
+              )}
+            </div>
+          )}
+
           {/* Pro Features Section */}
           {isPro ? (
             <div className="space-y-4">
@@ -112,7 +173,11 @@ export function ShareDialog({ calendar, onClose }: ShareDialogProps) {
               {/* Password Protection */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50">
                 <div className="flex items-center gap-3">
-                  <Lock className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                  {verifyingFeature === 'password' ? (
+                    <Loader2 className="w-5 h-5 text-gray-400 animate-spin flex-shrink-0" />
+                  ) : (
+                    <Lock className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                  )}
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">Password protection</p>
                     <p className="text-xs text-gray-500">Require password to view</p>
@@ -121,16 +186,21 @@ export function ShareDialog({ calendar, onClose }: ShareDialogProps) {
                 <input
                   type="password"
                   value={proSettings.password || ''}
-                  onChange={(e) => setProSettings({ password: e.target.value || null })}
+                  onChange={(e) => handlePasswordChange(e.target.value)}
                   placeholder="Set password"
                   className="input !w-full sm:!w-32 !py-2 text-sm"
+                  disabled={verifyingFeature === 'password'}
                 />
               </div>
 
               {/* Link Expiration */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50">
                 <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                  {verifyingFeature === 'expiration' ? (
+                    <Loader2 className="w-5 h-5 text-gray-400 animate-spin flex-shrink-0" />
+                  ) : (
+                    <Clock className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                  )}
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">Link expiration</p>
                     <p className="text-xs text-gray-500">Auto-expire after date</p>
@@ -139,15 +209,20 @@ export function ShareDialog({ calendar, onClose }: ShareDialogProps) {
                 <input
                   type="date"
                   value={proSettings.expiresAt || ''}
-                  onChange={(e) => setProSettings({ expiresAt: e.target.value || null })}
+                  onChange={(e) => handleExpirationChange(e.target.value)}
                   className="input !w-full sm:!w-36 !py-2 text-sm"
+                  disabled={verifyingFeature === 'expiration'}
                 />
               </div>
 
               {/* Hide Branding */}
               <label className="flex items-center justify-between gap-3 p-3 sm:p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 cursor-pointer">
                 <div className="flex items-center gap-3">
-                  <Eye className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                  {verifyingFeature === 'branding' ? (
+                    <Loader2 className="w-5 h-5 text-gray-400 animate-spin flex-shrink-0" />
+                  ) : (
+                    <Eye className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                  )}
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">Hide branding</p>
                     <p className="text-xs text-gray-500">Remove LinkCal logo</p>
@@ -156,8 +231,9 @@ export function ShareDialog({ calendar, onClose }: ShareDialogProps) {
                 <input
                   type="checkbox"
                   checked={proSettings.hideBranding}
-                  onChange={(e) => setProSettings({ hideBranding: e.target.checked })}
+                  onChange={(e) => handleBrandingChange(e.target.checked)}
                   className="flex-shrink-0"
+                  disabled={verifyingFeature === 'branding'}
                 />
               </label>
             </div>

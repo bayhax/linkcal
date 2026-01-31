@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Calendar, CalendarEvent, ProSettings } from '../types';
+import { verifyLicense, getStoredLicense, setStoredLicense, clearStoredLicense } from '../services/license';
 
 interface CalendarState {
   calendar: Calendar;
@@ -86,16 +87,21 @@ export const useThemeStore = create<ThemeState>()(
   )
 );
 
-// Pro features store
+// Pro features store with license verification
 interface ProState {
   isPro: boolean;
+  isVerifying: boolean;
+  licenseKey: string | null;
+  licenseStatus: string | null;
+  licenseError: string | null;
   proSettings: ProSettings;
-  subscriptionId: string | null;
-  expiresAt: string | null;
-  setIsPro: (isPro: boolean) => void;
+  
+  // Actions
   setProSettings: (settings: Partial<ProSettings>) => void;
-  setSubscription: (id: string, expires: string) => void;
-  clearSubscription: () => void;
+  activateLicense: (key: string) => Promise<boolean>;
+  verifyCurrentLicense: () => Promise<boolean>;
+  deactivateLicense: () => void;
+  checkAndVerifyLicense: () => Promise<void>;
 }
 
 const defaultProSettings: ProSettings = {
@@ -106,33 +112,110 @@ const defaultProSettings: ProSettings = {
 
 export const useProStore = create<ProState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       isPro: false,
+      isVerifying: false,
+      licenseKey: null,
+      licenseStatus: null,
+      licenseError: null,
       proSettings: defaultProSettings,
-      subscriptionId: null,
-      expiresAt: null,
-      
-      setIsPro: (isPro) => set({ isPro }),
       
       setProSettings: (settings) => set((state) => ({
         proSettings: { ...state.proSettings, ...settings }
       })),
       
-      setSubscription: (id, expires) => set({
-        isPro: true,
-        subscriptionId: id,
-        expiresAt: expires,
-      }),
+      activateLicense: async (key: string) => {
+        set({ isVerifying: true, licenseError: null });
+        
+        try {
+          const result = await verifyLicense(key);
+          
+          if (result.valid) {
+            setStoredLicense(key);
+            set({
+              isPro: true,
+              licenseKey: key,
+              licenseStatus: result.status || 'active',
+              licenseError: null,
+              isVerifying: false,
+            });
+            return true;
+          } else {
+            set({
+              isPro: false,
+              licenseKey: null,
+              licenseStatus: null,
+              licenseError: result.error || 'Invalid license key',
+              isVerifying: false,
+            });
+            return false;
+          }
+        } catch (error) {
+          set({
+            licenseError: 'Failed to verify license',
+            isVerifying: false,
+          });
+          return false;
+        }
+      },
       
-      clearSubscription: () => set({
-        isPro: false,
-        subscriptionId: null,
-        expiresAt: null,
-        proSettings: defaultProSettings,
-      }),
+      verifyCurrentLicense: async () => {
+        const { licenseKey } = get();
+        if (!licenseKey) {
+          set({ isPro: false });
+          return false;
+        }
+        
+        return get().activateLicense(licenseKey);
+      },
+      
+      deactivateLicense: () => {
+        clearStoredLicense();
+        set({
+          isPro: false,
+          licenseKey: null,
+          licenseStatus: null,
+          licenseError: null,
+          proSettings: defaultProSettings,
+        });
+      },
+      
+      // Check for stored license and verify on app load
+      checkAndVerifyLicense: async () => {
+        const storedKey = getStoredLicense();
+        if (storedKey) {
+          await get().activateLicense(storedKey);
+        }
+      },
     }),
     {
       name: 'linkcal-pro',
+      partialize: (state) => ({
+        licenseKey: state.licenseKey,
+        proSettings: state.proSettings,
+      }),
     }
   )
 );
+
+// Helper hook to verify Pro before using a feature
+export function useProFeature() {
+  const { isPro, isVerifying, verifyCurrentLicense, licenseKey } = useProStore();
+  
+  const requirePro = async (): Promise<boolean> => {
+    if (!licenseKey) {
+      return false;
+    }
+    
+    if (isPro && !isVerifying) {
+      // Already verified, but let's re-verify in background
+      verifyCurrentLicense();
+      return true;
+    }
+    
+    // Need to verify
+    return await verifyCurrentLicense();
+  };
+  
+  return { isPro, isVerifying, requirePro };
+}

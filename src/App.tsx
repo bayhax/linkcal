@@ -14,10 +14,11 @@ import type { CalendarEvent, Calendar as CalendarType } from './types';
 function App() {
   const { calendar, setCalendar, setTitle, addEvent, removeEvent, reset } = useCalendarStore();
   const { dark } = useThemeStore();
-  const { isPro } = useProStore();
+  const { isPro, checkAndVerifyLicense } = useProStore();
   const [showForm, setShowForm] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [upgradeTab, setUpgradeTab] = useState<'upgrade' | 'activate'>('upgrade');
   const [isViewing, setIsViewing] = useState(false);
   const [needsPassword, setNeedsPassword] = useState(false);
   const [isExpired, setIsExpired] = useState(false);
@@ -28,9 +29,27 @@ function App() {
     document.documentElement.classList.toggle('dark', dark);
   }, [dark]);
 
-  // Handle upgrade hash
+  // Check and verify stored license on mount
   useEffect(() => {
-    if (window.location.hash === '#upgrade') {
+    checkAndVerifyLicense();
+  }, [checkAndVerifyLicense]);
+
+  // Handle upgrade hash and checkout success
+  useEffect(() => {
+    const hash = window.location.hash;
+    const params = new URLSearchParams(window.location.search);
+    
+    if (hash === '#upgrade') {
+      setUpgradeTab('upgrade');
+      setShowUpgrade(true);
+    } else if (hash === '#activate') {
+      setUpgradeTab('activate');
+      setShowUpgrade(true);
+    }
+    
+    // Handle checkout success from Creem
+    if (params.get('checkout') === 'success') {
+      setUpgradeTab('activate');
       setShowUpgrade(true);
     }
   }, []);
@@ -38,7 +57,7 @@ function App() {
   // Load calendar from URL on mount
   useEffect(() => {
     const hash = window.location.hash.slice(1);
-    if (hash && hash !== 'upgrade') {
+    if (hash && hash !== 'upgrade' && hash !== 'activate') {
       if (isEncrypted(hash)) {
         setNeedsPassword(true);
         setIsViewing(true);
@@ -93,6 +112,17 @@ function App() {
     }
   };
 
+  const handleShowActivate = () => {
+    setUpgradeTab('activate');
+    setShowUpgrade(true);
+  };
+
+  const handleCloseUpgrade = () => {
+    setShowUpgrade(false);
+    // Clean URL
+    window.history.replaceState({}, '', window.location.pathname);
+  };
+
   // Password dialog
   if (needsPassword) {
     return (
@@ -130,7 +160,10 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
-      <Header showBranding={!hideBranding} />
+      <Header 
+        showBranding={!hideBranding} 
+        onActivateClick={!isPro ? handleShowActivate : undefined}
+      />
       
       <main className="flex-1 w-full max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* Hero section for new users */}
@@ -183,7 +216,7 @@ function App() {
             {/* Pro teaser on hero */}
             {!isPro && (
               <button
-                onClick={() => setShowUpgrade(true)}
+                onClick={() => { setUpgradeTab('upgrade'); setShowUpgrade(true); }}
                 className="mt-8 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary-100 to-purple-100 dark:from-primary-900/40 dark:to-purple-900/40 border border-primary-200 dark:border-primary-700/50 text-sm font-medium text-primary-700 dark:text-primary-300 hover:border-primary-300 dark:hover:border-primary-600 transition-colors"
               >
                 <Sparkles className="w-4 h-4" />
@@ -261,7 +294,7 @@ function App() {
         {/* Pro upsell for non-pro users with calendars */}
         {!isViewing && !isPro && calendar.events.length > 0 && (
           <button
-            onClick={() => setShowUpgrade(true)}
+            onClick={() => { setUpgradeTab('upgrade'); setShowUpgrade(true); }}
             className="mt-6 w-full p-4 rounded-2xl bg-gradient-to-r from-primary-50 to-purple-50 dark:from-primary-950/30 dark:to-purple-950/30 border border-primary-200 dark:border-primary-800/50 flex items-center justify-between group hover:border-primary-300 dark:hover:border-primary-700 transition-colors animate-fade-in"
           >
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -318,14 +351,15 @@ function App() {
         <ShareDialog
           calendar={calendar}
           onClose={() => setShowShare(false)}
+          onUpgradeClick={handleShowActivate}
         />
       )}
       
       {showUpgrade && (
-        <UpgradeDialog onClose={() => {
-          setShowUpgrade(false);
-          window.history.replaceState(null, '', window.location.pathname);
-        }} />
+        <UpgradeDialog 
+          onClose={handleCloseUpgrade}
+          initialTab={upgradeTab}
+        />
       )}
     </div>
   );

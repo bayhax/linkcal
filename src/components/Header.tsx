@@ -1,16 +1,17 @@
-import { Moon, Sun, Calendar, Sparkles } from 'lucide-react';
+import { Moon, Sun, Calendar, Sparkles, Crown, Key } from 'lucide-react';
 import { useThemeStore, useProStore } from '../store/calendar';
 
 interface HeaderProps {
   showBranding?: boolean;
+  onActivateClick?: () => void;
 }
 
-export function Header({ showBranding = true }: HeaderProps) {
+export function Header({ showBranding = true, onActivateClick }: HeaderProps) {
   const { dark, toggle } = useThemeStore();
-  const { isPro } = useProStore();
+  const { isPro, proSettings } = useProStore();
 
   // Hide branding if Pro user with branding disabled
-  const shouldShowBranding = showBranding && (!isPro || true); // Always show for now
+  const shouldShowBranding = showBranding && (!isPro || !proSettings.hideBranding);
 
   return (
     <header className="sticky top-0 z-40 w-full">
@@ -38,14 +39,32 @@ export function Header({ showBranding = true }: HeaderProps) {
 
           {/* Right side actions */}
           <div className="flex items-center gap-2">
-            {!isPro && (
-              <a
-                href="#upgrade"
-                className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
-              >
-                <Sparkles className="w-4 h-4" />
-                <span className="hidden xs:inline">Pro</span>
-              </a>
+            {isPro ? (
+              /* Pro Badge */
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20">
+                <Crown className="w-4 h-4 text-amber-500" />
+                <span className="text-sm font-medium text-amber-600 dark:text-amber-400">Pro</span>
+              </div>
+            ) : (
+              /* Upgrade buttons */
+              <>
+                <a
+                  href="#upgrade"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span className="hidden xs:inline">Pro</span>
+                </a>
+                {onActivateClick && (
+                  <button
+                    onClick={onActivateClick}
+                    className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                    title="Enter license key"
+                  >
+                    <Key className="w-4 h-4" />
+                  </button>
+                )}
+              </>
             )}
             
             <a
