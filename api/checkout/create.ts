@@ -1,6 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-const CREEM_API = 'https://test-api.creem.io';
+// Use production or test API based on environment
+const IS_PRODUCTION = process.env.VERCEL_ENV === 'production';
+const CREEM_API = IS_PRODUCTION ? 'https://api.creem.io' : 'https://test-api.creem.io';
 const CREEM_API_KEY = process.env.CREEM_API_KEY || 'creem_test_3qWavV5aUN6biC1v6r3F2Q';
 
 // Product IDs in Creem

@@ -1,6 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-const CREEM_API = 'https://test-api.creem.io';
+// Use production or test API based on environment
+const IS_PRODUCTION = process.env.VERCEL_ENV === 'production';
+const CREEM_API = IS_PRODUCTION ? 'https://api.creem.io' : 'https://test-api.creem.io';
 const CREEM_API_KEY = process.env.CREEM_API_KEY || 'creem_test_3qWavV5aUN6biC1v6r3F2Q';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -28,7 +30,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const response = await fetch(`${CREEM_API}/v1/licenses/validate`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${CREEM_API_KEY}`,
+        'x-api-key': CREEM_API_KEY,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
