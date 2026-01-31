@@ -1,4 +1,5 @@
-import { Moon, Sun, Calendar, Sparkles, Crown, Key } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Moon, Sun, Calendar, Sparkles, Crown, Key, LogOut, ChevronDown } from 'lucide-react';
 import { useThemeStore, useProStore } from '../store/calendar';
 
 interface HeaderProps {
@@ -8,10 +9,35 @@ interface HeaderProps {
 
 export function Header({ showBranding = true, onActivateClick }: HeaderProps) {
   const { dark, toggle } = useThemeStore();
-  const { isPro, proSettings } = useProStore();
+  const { isPro, proSettings, licenseKey, deactivateLicense } = useProStore();
+  const [showProMenu, setShowProMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowProMenu(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Hide branding if Pro user with branding disabled
   const shouldShowBranding = showBranding && (!isPro || !proSettings.hideBranding);
+
+  const handleSignOut = () => {
+    if (confirm('确定要退出 Pro 模式吗？你需要重新输入 License Key 才能恢复。')) {
+      deactivateLicense();
+      setShowProMenu(false);
+    }
+  };
+
+  // Mask license key for display
+  const maskedLicense = licenseKey 
+    ? `${licenseKey.slice(0, 8)}...${licenseKey.slice(-4)}`
+    : null;
 
   return (
     <header className="sticky top-0 z-40 w-full">
@@ -40,10 +66,38 @@ export function Header({ showBranding = true, onActivateClick }: HeaderProps) {
           {/* Right side actions */}
           <div className="flex items-center gap-2">
             {isPro ? (
-              /* Pro Badge */
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20">
-                <Crown className="w-4 h-4 text-amber-500" />
-                <span className="text-sm font-medium text-amber-600 dark:text-amber-400">Pro</span>
+              /* Pro Badge with dropdown */
+              <div className="relative" ref={menuRef}>
+                <button
+                  onClick={() => setShowProMenu(!showProMenu)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 hover:border-amber-500/40 transition-colors"
+                >
+                  <Crown className="w-4 h-4 text-amber-500" />
+                  <span className="text-sm font-medium text-amber-600 dark:text-amber-400">Pro</span>
+                  <ChevronDown className={`w-3 h-3 text-amber-500 transition-transform ${showProMenu ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {/* Dropdown menu */}
+                {showProMenu && (
+                  <div className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden animate-fade-in-down z-50">
+                    <div className="p-3 border-b border-gray-100 dark:border-gray-800">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Crown className="w-4 h-4 text-amber-500" />
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">Pro 已激活</span>
+                      </div>
+                      {maskedLicense && (
+                        <p className="text-xs text-gray-500 font-mono">{maskedLicense}</p>
+                      )}
+                    </div>
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      退出 Pro 模式
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               /* Upgrade buttons */
