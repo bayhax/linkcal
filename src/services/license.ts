@@ -1,6 +1,6 @@
 // License service for Pro features
 
-const API_BASE = import.meta.env.PROD ? '' : '';
+const API_BASE = '';
 
 export interface LicenseInfo {
   valid: boolean;
@@ -34,15 +34,15 @@ export async function verifyLicense(licenseKey: string): Promise<LicenseInfo> {
   }
 }
 
-// Create a checkout session
-export async function createCheckout(email: string, plan: 'monthly' | 'lifetime'): Promise<CheckoutResult> {
+// Create a checkout session (email collected by Creem)
+export async function createCheckout(plan: 'monthly' | 'lifetime'): Promise<CheckoutResult> {
   try {
     const response = await fetch(`${API_BASE}/api/checkout/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, plan }),
+      body: JSON.stringify({ plan }),
     });
 
     const data = await response.json();

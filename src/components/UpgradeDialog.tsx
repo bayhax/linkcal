@@ -24,7 +24,6 @@ export function UpgradeDialog({ onClose, initialTab = 'upgrade' }: UpgradeDialog
   const [activeTab, setActiveTab] = useState<'upgrade' | 'activate'>(initialTab);
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'lifetime'>('lifetime');
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('');
   const [licenseKey, setLicenseKey] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -50,16 +49,11 @@ export function UpgradeDialog({ onClose, initialTab = 'upgrade' }: UpgradeDialog
   ];
 
   const handleCheckout = async () => {
-    if (!email) {
-      setError('Please enter your email');
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
 
     try {
-      const result = await createCheckout(email, selectedPlan);
+      const result = await createCheckout(selectedPlan);
       
       if (result.checkoutUrl) {
         // Redirect to Creem checkout
@@ -244,23 +238,6 @@ export function UpgradeDialog({ onClose, initialTab = 'upgrade' }: UpgradeDialog
                 </button>
               </div>
 
-              {/* Email input */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Email address
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className="input"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Your license key will be sent to this email
-                </p>
-              </div>
-
               {/* CTA */}
               <button
                 onClick={handleCheckout}
@@ -276,6 +253,10 @@ export function UpgradeDialog({ onClose, initialTab = 'upgrade' }: UpgradeDialog
                   </>
                 )}
               </button>
+
+              <p className="text-xs text-gray-500 text-center">
+                You'll enter your email during checkout. License key will be delivered instantly.
+              </p>
             </>
           ) : (
             /* Activate Tab */

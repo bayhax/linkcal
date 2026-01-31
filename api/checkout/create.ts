@@ -3,7 +3,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 const CREEM_API = 'https://test-api.creem.io';
 const CREEM_API_KEY = process.env.CREEM_API_KEY || 'creem_test_3qWavV5aUN6biC1v6r3F2Q';
 
-// Product IDs in Creem - update these after creating products in Creem dashboard
+// Product IDs in Creem
 const PRODUCTS = {
   monthly: process.env.CREEM_PRODUCT_MONTHLY || 'prod_monthly_5',
   lifetime: process.env.CREEM_PRODUCT_LIFETIME || 'prod_lifetime_29',
@@ -23,11 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { email, plan } = req.body;
-
-  if (!email) {
-    return res.status(400).json({ error: 'Email is required' });
-  }
+  const { plan } = req.body;
 
   if (!plan || !['monthly', 'lifetime'].includes(plan)) {
     return res.status(400).json({ error: 'Valid plan (monthly/lifetime) is required' });
@@ -39,19 +35,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const response = await fetch(`${CREEM_API}/v1/checkouts`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${CREEM_API_KEY}`,
+        'x-api-key': CREEM_API_KEY,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         product_id: PRODUCTS[plan as keyof typeof PRODUCTS],
         success_url: `${baseUrl}/?checkout=success`,
-        cancel_url: `${baseUrl}/#upgrade`,
-        customer_email: email,
-        request_license_key: true, // Request Creem to generate a license key
-        metadata: {
-          plan,
-          source: 'linkcal',
-        },
       }),
     });
 
@@ -64,7 +53,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } else {
       console.error('Creem checkout error:', data);
       return res.status(400).json({
-        error: data.error || 'Failed to create checkout session',
+        error: data.message || data.error || 'Failed to create checkout session',
       });
     }
   } catch (error) {
