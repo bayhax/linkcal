@@ -33,7 +33,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Valid plan (monthly/lifetime) is required' });
   }
 
-  const baseUrl = req.headers.origin || 'https://linkcal.vercel.app';
+  const baseUrl = req.headers.origin || 'https://linkcal.link';
 
   try {
     const response = await fetch(`${CREEM_API}/v1/checkouts`, {
