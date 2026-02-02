@@ -27,6 +27,15 @@ export async function verifyLicense(licenseKey: string): Promise<LicenseInfo> {
     });
 
     const data = await response.json();
+    // Flatten the license object into the response
+    if (data.valid && data.license) {
+      return {
+        valid: true,
+        key: data.license.key,
+        status: data.license.status,
+        expiresAt: data.license.expiresAt,
+      };
+    }
     return data;
   } catch (error) {
     console.error('License verification failed:', error);

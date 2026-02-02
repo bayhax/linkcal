@@ -4,9 +4,9 @@ export function Privacy() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <header className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4">
-          <a 
-            href="/" 
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <a
+            href="/"
             className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -15,7 +15,7 @@ export function Privacy() {
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <article className="prose dark:prose-invert prose-gray max-w-none">
           <h1>Privacy Policy</h1>
           <p className="text-gray-500 dark:text-gray-400">Last updated: February 2, 2025</p>

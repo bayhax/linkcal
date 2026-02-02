@@ -94,8 +94,10 @@ interface ProState {
   licenseKey: string | null;
   licenseStatus: string | null;
   licenseError: string | null;
+  licenseExpiresAt: string | null;
+  lastVerifiedAt: number | null;
   proSettings: ProSettings;
-  
+
   // Actions
   setProSettings: (settings: Partial<ProSettings>) => void;
   activateLicense: (key: string) => Promise<boolean>;
@@ -118,24 +120,28 @@ export const useProStore = create<ProState>()(
       licenseKey: null,
       licenseStatus: null,
       licenseError: null,
+      licenseExpiresAt: null,
+      lastVerifiedAt: null,
       proSettings: defaultProSettings,
-      
+
       setProSettings: (settings) => set((state) => ({
         proSettings: { ...state.proSettings, ...settings }
       })),
-      
+
       activateLicense: async (key: string) => {
         set({ isVerifying: true, licenseError: null });
-        
+
         try {
           const result = await verifyLicense(key);
-          
+
           if (result.valid) {
             setStoredLicense(key);
             set({
               isPro: true,
               licenseKey: key,
               licenseStatus: result.status || 'active',
+              licenseExpiresAt: result.expiresAt || null,
+              lastVerifiedAt: Date.now(),
               licenseError: null,
               isVerifying: false,
             });
@@ -145,6 +151,8 @@ export const useProStore = create<ProState>()(
               isPro: false,
               licenseKey: null,
               licenseStatus: null,
+              licenseExpiresAt: null,
+              lastVerifiedAt: null,
               licenseError: result.error || 'Invalid license key',
               isVerifying: false,
             });
@@ -158,33 +166,53 @@ export const useProStore = create<ProState>()(
           return false;
         }
       },
-      
+
       verifyCurrentLicense: async () => {
         const { licenseKey } = get();
         if (!licenseKey) {
           set({ isPro: false });
           return false;
         }
-        
+
         return get().activateLicense(licenseKey);
       },
-      
+
       deactivateLicense: () => {
         clearStoredLicense();
         set({
           isPro: false,
           licenseKey: null,
           licenseStatus: null,
+          licenseExpiresAt: null,
+          lastVerifiedAt: null,
           licenseError: null,
           proSettings: defaultProSettings,
         });
       },
-      
+
       // Check for stored license and verify on app load
+      // Re-verify if last check was more than 24 hours ago to pick up renewals
       checkAndVerifyLicense: async () => {
         const storedKey = getStoredLicense();
-        if (storedKey) {
+        if (!storedKey) return;
+
+        const { lastVerifiedAt, licenseExpiresAt } = get();
+        const now = Date.now();
+        const ONE_DAY = 24 * 60 * 60 * 1000;
+
+        // Always re-verify if:
+        // - Never verified before
+        // - Last verification was more than 24 hours ago
+        // - License expires within 3 days (check more frequently for renewals)
+        const needsVerification = !lastVerifiedAt
+          || (now - lastVerifiedAt > ONE_DAY)
+          || (licenseExpiresAt && new Date(licenseExpiresAt).getTime() - now < 3 * ONE_DAY);
+
+        if (needsVerification) {
           await get().activateLicense(storedKey);
+        } else {
+          // Trust cached state but set isPro from stored key
+          set({ isPro: true, licenseKey: storedKey });
         }
       },
     }),
@@ -192,6 +220,8 @@ export const useProStore = create<ProState>()(
       name: 'linkcal-pro',
       partialize: (state) => ({
         licenseKey: state.licenseKey,
+        licenseExpiresAt: state.licenseExpiresAt,
+        lastVerifiedAt: state.lastVerifiedAt,
         proSettings: state.proSettings,
       }),
     }

@@ -176,7 +176,7 @@ function App() {
         onActivateClick={!isPro ? handleShowActivate : undefined}
       />
       
-      <main className="flex-1 w-full max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <main className="flex-1 w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Hero section for new users */}
         {!isViewing && calendar.events.length === 0 && !showForm && (
           <div className="text-center mb-12 animate-fade-in-up">
