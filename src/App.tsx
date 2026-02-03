@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Share2, Plus, Calendar as CalendarIcon, Zap, Shield, Clock, ArrowRight, Sparkles } from 'lucide-react';
+import { Share2, Plus, Calendar as CalendarIcon, Zap, Shield, Clock, ArrowRight, Sparkles, Lock, Eye, Check } from 'lucide-react';
 import { Header } from './components/Header';
 import { EventForm } from './components/EventForm';
 import { EventList } from './components/EventList';
@@ -224,16 +224,76 @@ function App() {
               </div>
             </div>
 
-            {/* Pro teaser on hero */}
+            {/* Pricing section */}
             {!isPro && (
-              <button
-                onClick={() => { setUpgradeTab('upgrade'); setShowUpgrade(true); }}
-                className="mt-8 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary-100 to-purple-100 dark:from-primary-900/40 dark:to-purple-900/40 border border-primary-200 dark:border-primary-700/50 text-sm font-medium text-primary-700 dark:text-primary-300 hover:border-primary-300 dark:hover:border-primary-600 transition-colors"
-              >
-                <Sparkles className="w-4 h-4" />
-                <span>Pro: Password protect & more</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+              <div className="mt-12 w-full max-w-2xl mx-auto">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Pricing</h2>
+                <p className="text-gray-500 dark:text-gray-400 mb-6 text-sm">Free to use. Upgrade for advanced features.</p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Free Plan */}
+                  <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-left">
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Free</p>
+                    <p className="text-3xl font-bold text-gray-900 dark:text-white mb-4">$0</p>
+                    <ul className="space-y-2.5 text-sm text-gray-600 dark:text-gray-400">
+                      <li className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                        Unlimited calendars
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                        Share via link
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                        Export to .ics
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                        No signup required
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Pro Plan */}
+                  <div className="p-5 rounded-2xl border-2 border-primary-500 bg-primary-50 dark:bg-primary-950/30 text-left relative">
+                    <div className="absolute -top-2.5 right-4 px-2 py-0.5 rounded-full bg-primary-500 text-white text-xs font-medium">
+                      Pro
+                    </div>
+                    <p className="text-sm font-medium text-primary-600 dark:text-primary-400 mb-1">From</p>
+                    <div className="flex items-baseline gap-2 mb-4">
+                      <p className="text-3xl font-bold text-gray-900 dark:text-white">$5</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">/month or <span className="font-semibold text-gray-900 dark:text-white">$29</span> one-time</p>
+                    </div>
+                    <ul className="space-y-2.5 text-sm text-gray-600 dark:text-gray-400 mb-5">
+                      <li className="flex items-center gap-2">
+                        <Lock className="w-4 h-4 text-primary-500 flex-shrink-0" />
+                        Password protection
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-primary-500 flex-shrink-0" />
+                        Link expiration
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Eye className="w-4 h-4 text-primary-500 flex-shrink-0" />
+                        Hide branding
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-primary-500 flex-shrink-0" />
+                        Priority support
+                      </li>
+                    </ul>
+                    <button
+                      onClick={() => { setUpgradeTab('upgrade'); setShowUpgrade(true); }}
+                      className="btn-primary w-full py-2.5 text-sm"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      Get Pro
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         )}
@@ -314,7 +374,7 @@ function App() {
               </div>
               <div className="text-left min-w-0">
                 <p className="font-medium text-gray-900 dark:text-white">Upgrade to Pro</p>
-                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">Password protect, auto-expire & more</p>
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">Password protect, auto-expire & more — from $5/mo</p>
               </div>
             </div>
             <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 group-hover:translate-x-1 transition-all flex-shrink-0" />
@@ -361,6 +421,10 @@ function App() {
             {' · '}
             <a href="/terms" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
               Terms of Service
+            </a>
+            {' · '}
+            <a href="mailto:support@linkcal.link" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+              Contact Support
             </a>
           </p>
         </footer>
