@@ -4,6 +4,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 const IS_PRODUCTION = process.env.VERCEL_ENV === 'production';
 const CREEM_API = IS_PRODUCTION ? 'https://api.creem.io' : 'https://test-api.creem.io';
 const CREEM_API_KEY = process.env.CREEM_API_KEY || 'creem_test_3qWavV5aUN6biC1v6r3F2Q';
+const USING_FALLBACK_KEY = !process.env.CREEM_API_KEY;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS
@@ -53,10 +54,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         },
       });
     } else {
-      // License invalid or expired
+      // License invalid or expired - include debug info
       return res.status(200).json({
         valid: false,
         error: data.error || 'Invalid license key',
+        _debug: {
+          env: process.env.VERCEL_ENV || 'unknown',
+          api: CREEM_API,
+          usingFallbackKey: USING_FALLBACK_KEY,
+          creemResponse: data,
+        },
       });
     }
   } catch (error) {
