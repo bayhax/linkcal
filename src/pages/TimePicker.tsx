@@ -16,6 +16,8 @@ import {
   Sparkles,
   X,
   ChevronDown,
+  Mail,
+  Link2,
 } from 'lucide-react';
 import { Header } from '../components/Header';
 import type { TimePickerData, CalendarEvent } from '../types';
@@ -66,6 +68,7 @@ export function TimePicker() {
   // Share dialog state
   const [showShare, setShowShare] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copiedConfirm, setCopiedConfirm] = useState(false);
 
   // Apply dark mode
   useEffect(() => {
@@ -190,6 +193,31 @@ export function TimePicker() {
     await navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCopyConfirmUrl = async () => {
+    await navigator.clipboard.writeText(window.location.href);
+    setCopiedConfirm(true);
+    setTimeout(() => setCopiedConfirm(false), 2000);
+  };
+
+  const generateNotifyEmail = () => {
+    if (!pickerData || selectedIndex === null) return '';
+    const event = getSelectedEvent();
+    if (!event) return '';
+    
+    const subject = encodeURIComponent(`Time Confirmed: ${pickerData.title}`);
+    const dateStr = format(new Date(event.start), 'EEEE, MMMM d, yyyy');
+    const timeStr = `${format(new Date(event.start), 'h:mm a')} - ${format(new Date(event.end!), 'h:mm a')}`;
+    const body = encodeURIComponent(
+      `Hi,\n\nI've confirmed my time for "${pickerData.title}":\n\n` +
+      `📅 ${dateStr}\n` +
+      `🕐 ${timeStr}\n` +
+      (pickerData.loc ? `📍 ${pickerData.loc}\n` : '') +
+      `\nConfirmation link: ${window.location.href}\n\n` +
+      `Looking forward to it!`
+    );
+    return `mailto:?subject=${subject}&body=${body}`;
   };
 
   const handleCreateNew = () => {
@@ -320,6 +348,29 @@ export function TimePicker() {
                 <Download className="w-4 h-4" />
                 .ics
               </a>
+            </div>
+
+            {/* Notify Organizer Section */}
+            <div className="border-t border-gray-200 dark:border-gray-800 pt-6 mb-6">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                Let the organizer know:
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <a
+                  href={generateNotifyEmail()}
+                  className="btn-primary text-sm"
+                >
+                  <Mail className="w-4 h-4" />
+                  Send Email
+                </a>
+                <button
+                  onClick={handleCopyConfirmUrl}
+                  className={`btn-secondary text-sm ${copiedConfirm ? '!bg-emerald-500 !text-white !border-emerald-500' : ''}`}
+                >
+                  {copiedConfirm ? <Check className="w-4 h-4" /> : <Link2 className="w-4 h-4" />}
+                  {copiedConfirm ? 'Copied!' : 'Copy Link'}
+                </button>
+              </div>
             </div>
 
             <button onClick={handleCreateNew} className="btn-ghost text-sm">
@@ -605,14 +656,14 @@ export function TimePicker() {
               <Share2 className="w-5 h-5" />
               Generate Link
             </button>
-          </div>
 
-          {/* Back to Calendar */}
-          <div className="mt-6 text-center">
-            <a href="/" className="btn-ghost text-sm">
-              <ArrowRight className="w-4 h-4 rotate-180" />
-              Back to Calendar mode
-            </a>
+            {/* Back to Calendar - inside card */}
+            <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-800 text-center">
+              <a href="/" className="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 inline-flex items-center gap-2 transition-colors">
+                <ArrowRight className="w-4 h-4 rotate-180" />
+                Back to Calendar mode
+              </a>
+            </div>
           </div>
         </div>
       </main>
