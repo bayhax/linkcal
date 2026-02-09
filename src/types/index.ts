@@ -21,6 +21,27 @@ export interface Calendar {
   };
 }
 
+// Time Picker types
+export interface TimePickerData {
+  v: number;              // schema version
+  mode: 'pick';           // mode identifier
+  title: string;          // event title
+  desc?: string;          // description
+  loc?: string;           // location
+  tz: string;             // creator's timezone
+  dur: number;            // duration in minutes
+  opts: string[];         // ISO datetime strings for options
+  pro?: {
+    expires?: number;
+    hideBranding?: boolean;
+  };
+}
+
+export interface TimePickerSelection {
+  data: TimePickerData;
+  selectedIndex: number;
+}
+
 export interface ProSettings {
   password: string | null;
   expiresAt: string | null; // ISO date when link expires

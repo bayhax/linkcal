@@ -8,6 +8,8 @@ import { UpgradeDialog } from './components/UpgradeDialog';
 import { PasswordDialog } from './components/PasswordDialog';
 import { Privacy } from './pages/Privacy';
 import { Terms } from './pages/Terms';
+import { TimePicker } from './pages/TimePicker';
+import { Recruiters } from './pages/Recruiters';
 import { useCalendarStore, useThemeStore, useProStore } from './store/calendar';
 import { getCalendarFromUrl, checkLinkExpired } from './utils/url';
 import { isEncrypted, decryptData } from './utils/crypto';
@@ -22,6 +24,16 @@ function App() {
   }
   if (pathname === '/terms') {
     return <Terms />;
+  }
+  
+  // Route to Time Picker
+  if (pathname === '/pick') {
+    return <TimePicker />;
+  }
+  
+  // Route to Recruiters landing page
+  if (pathname === '/recruiters' || pathname === '/interview') {
+    return <Recruiters />;
   }
 
   const { calendar, setCalendar, setTitle, addEvent, removeEvent, reset } = useCalendarStore();
@@ -298,8 +310,29 @@ function App() {
               </div>
             )}
 
-            {/* Use Cases Section */}
+            {/* Time Picker CTA */}
             <div className="mt-16 pt-12 border-t border-gray-200 dark:border-gray-800">
+              <a 
+                href="/recruiters"
+                className="block p-6 rounded-2xl bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border border-blue-200 dark:border-blue-800/50 hover:border-blue-300 dark:hover:border-blue-700 transition-colors group"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                      <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Scheduling Interviews?</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Try our Time Picker — force candidates to pick a specific time, not just say "ok"</p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all flex-shrink-0" />
+                </div>
+              </a>
+            </div>
+
+            {/* Use Cases Section */}
+            <div className="mt-12 pt-12 border-t border-gray-200 dark:border-gray-800">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">
                 Perfect for
               </h2>
