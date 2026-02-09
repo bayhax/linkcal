@@ -122,6 +122,13 @@ export function Header({ showBranding = true, onActivateClick }: HeaderProps) {
             )}
             
             <a
+              href="/recruiters"
+              className="hidden sm:flex items-center px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+            >
+              For Recruiters
+            </a>
+            
+            <a
               href="https://github.com/bayhax/linkcal"
               target="_blank"
               rel="noopener noreferrer"

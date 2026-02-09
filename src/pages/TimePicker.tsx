@@ -597,6 +597,7 @@ export function TimePicker() {
 
             {/* Generate Button */}
             <button
+              type="button"
               onClick={handleCreatePicker}
               disabled={!title.trim() || timeOptions.length < 2}
               className="btn-primary w-full"

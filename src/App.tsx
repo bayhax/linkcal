@@ -313,7 +313,7 @@ function App() {
             {/* Time Picker CTA */}
             <div className="mt-16 pt-12 border-t border-gray-200 dark:border-gray-800">
               <a 
-                href="/recruiters"
+                href="/pick"
                 className="block p-6 rounded-2xl bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border border-blue-200 dark:border-blue-800/50 hover:border-blue-300 dark:hover:border-blue-700 transition-colors group"
               >
                 <div className="flex items-center justify-between">
