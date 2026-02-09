@@ -552,19 +552,6 @@ function App() {
               Privacy
             </a>
           </p>
-          <p className="text-xs text-gray-400 dark:text-gray-600 mt-2">
-            <a href="/privacy" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-              Privacy Policy
-            </a>
-            {' · '}
-            <a href="/terms" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-              Terms of Service
-            </a>
-            {' · '}
-            <a href="mailto:support@linkcal.link" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-              Contact Support
-            </a>
-          </p>
         </footer>
       )}
 
