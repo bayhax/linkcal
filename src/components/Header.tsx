@@ -28,7 +28,7 @@ export function Header({ showBranding = true, onActivateClick }: HeaderProps) {
   const shouldShowBranding = showBranding && (!isPro || !proSettings.hideBranding);
 
   const handleSignOut = () => {
-    if (confirm('Are you sure you want to sign out of Pro? You will need to re-enter your license key to restore access.')) {
+    if (confirm('Are you sure you want to sign out of Pro? You\'ll need to re-enter your License Key to restore it.')) {
       deactivateLicense();
       setShowProMenu(false);
     }
@@ -83,7 +83,7 @@ export function Header({ showBranding = true, onActivateClick }: HeaderProps) {
                     <div className="p-3 border-b border-gray-100 dark:border-gray-800">
                       <div className="flex items-center gap-2 mb-1">
                         <Crown className="w-4 h-4 text-amber-500" />
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">Pro Active</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">Pro Activated</span>
                       </div>
                       {maskedLicense && (
                         <p className="text-xs text-gray-500 font-mono">{maskedLicense}</p>
@@ -94,7 +94,7 @@ export function Header({ showBranding = true, onActivateClick }: HeaderProps) {
                       className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                     >
                       <LogOut className="w-4 h-4" />
-                      Sign Out
+                      Sign Out of Pro
                     </button>
                   </div>
                 )}
@@ -107,7 +107,7 @@ export function Header({ showBranding = true, onActivateClick }: HeaderProps) {
                   className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
                 >
                   <Sparkles className="w-4 h-4" />
-                  <span className="hidden xs:inline">Pricing</span>
+                  <span className="hidden xs:inline">Pro</span>
                 </a>
                 {onActivateClick && (
                   <button
