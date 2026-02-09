@@ -483,6 +483,14 @@ function App() {
             >
               Open Source
             </a>
+            {' · '}
+            <a href="/terms" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+              Terms
+            </a>
+            {' · '}
+            <a href="/privacy" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+              Privacy
+            </a>
           </p>
         </footer>
       )}
