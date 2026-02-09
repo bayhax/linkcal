@@ -373,10 +373,13 @@ export function TimePicker() {
               </div>
             </div>
 
-            <button onClick={handleCreateNew} className="btn-ghost text-sm">
-              <Plus className="w-4 h-4" />
-              Create your own time picker
-            </button>
+            {/* Create your own - inside card */}
+            <div className="pt-4 border-t border-gray-100 dark:border-gray-800 text-center">
+              <button onClick={handleCreateNew} className="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 inline-flex items-center gap-2 transition-colors">
+                <Plus className="w-4 h-4" />
+                Create your own time picker
+              </button>
+            </div>
           </div>
         </main>
       </div>
@@ -456,8 +459,9 @@ export function TimePicker() {
               Confirm Selection
             </button>
 
-            <div className="mt-6 text-center">
-              <button onClick={handleCreateNew} className="btn-ghost text-sm">
+            {/* Create your own - inside card */}
+            <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-800 text-center">
+              <button onClick={handleCreateNew} className="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 inline-flex items-center gap-2 transition-colors">
                 <Plus className="w-4 h-4" />
                 Create your own time picker
               </button>
