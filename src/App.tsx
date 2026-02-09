@@ -6,12 +6,24 @@ import { EventList } from './components/EventList';
 import { ShareDialog } from './components/ShareDialog';
 import { UpgradeDialog } from './components/UpgradeDialog';
 import { PasswordDialog } from './components/PasswordDialog';
+import { Privacy } from './pages/Privacy';
+import { Terms } from './pages/Terms';
 import { useCalendarStore, useThemeStore, useProStore } from './store/calendar';
 import { getCalendarFromUrl, checkLinkExpired } from './utils/url';
 import { isEncrypted, decryptData } from './utils/crypto';
 import type { CalendarEvent, Calendar as CalendarType } from './types';
 
 function App() {
+  const pathname = window.location.pathname;
+  
+  // Route to legal pages
+  if (pathname === '/privacy') {
+    return <Privacy />;
+  }
+  if (pathname === '/terms') {
+    return <Terms />;
+  }
+
   const { calendar, setCalendar, setTitle, addEvent, removeEvent, reset } = useCalendarStore();
   const { dark } = useThemeStore();
   const { isPro, checkAndVerifyLicense } = useProStore();
