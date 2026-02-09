@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Share2, Plus, Calendar as CalendarIcon, Zap, Shield, Clock, ArrowRight, Sparkles, Lock, Eye, Check } from 'lucide-react';
+import { Share2, Plus, Calendar as CalendarIcon, Zap, Shield, Clock, ArrowRight, Sparkles, Users, Briefcase, PartyPopper, Lock, ChevronDown, Check, X } from 'lucide-react';
 import { Header } from './components/Header';
 import { EventForm } from './components/EventForm';
 import { EventList } from './components/EventList';
@@ -23,6 +23,7 @@ function App() {
   if (pathname === '/terms') {
     return <Terms />;
   }
+
   const { calendar, setCalendar, setTitle, addEvent, removeEvent, reset } = useCalendarStore();
   const { dark } = useThemeStore();
   const { isPro, checkAndVerifyLicense } = useProStore();
@@ -34,6 +35,7 @@ function App() {
   const [needsPassword, setNeedsPassword] = useState(false);
   const [isExpired, setIsExpired] = useState(false);
   const [hideBranding, setHideBranding] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   // Apply dark mode
   useEffect(() => {
@@ -191,13 +193,13 @@ function App() {
             </div>
 
             <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight text-balance">
-              Share calendars
+              Share calendars in
               <br />
-              <span className="text-gradient">instantly</span>
+              <span className="text-gradient">seconds</span>
             </h1>
             
             <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
-              Create events, get a link, share with anyone. Your data stays in the URL—nothing stored on servers.
+              Create events, get a link, share anywhere. Your data stays in the URL — nothing on our servers. Ever.
             </p>
 
             <button
@@ -295,6 +297,132 @@ function App() {
                 </div>
               </div>
             )}
+
+            {/* Use Cases Section */}
+            <div className="mt-16 pt-12 border-t border-gray-200 dark:border-gray-800">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">
+                Perfect for
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
+                <div className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                      <Briefcase className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">Freelancers</h3>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Share your availability without Calendly or complex booking tools</p>
+                </div>
+                <div className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                      <PartyPopper className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">Event Organizers</h3>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">One link with all event details, easy for attendees to save</p>
+                </div>
+                <div className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                      <Users className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">Teams</h3>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Quick schedule sharing without endless email chains</p>
+                </div>
+                <div className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                      <Lock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">Privacy-conscious</h3>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Your data, your control — nothing stored on our servers</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Comparison Table */}
+            <div className="mt-16 pt-12 border-t border-gray-200 dark:border-gray-800">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">
+                Why LinkCal?
+              </h2>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-200 dark:border-gray-800">
+                      <th className="text-left py-3 px-2 font-medium text-gray-500 dark:text-gray-400"></th>
+                      <th className="py-3 px-2 font-semibold text-primary-600 dark:text-primary-400">LinkCal</th>
+                      <th className="py-3 px-2 font-medium text-gray-600 dark:text-gray-400">Calendly</th>
+                      <th className="py-3 px-2 font-medium text-gray-600 dark:text-gray-400">Google Cal</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-gray-600 dark:text-gray-400">
+                    <tr className="border-b border-gray-100 dark:border-gray-800/50">
+                      <td className="py-3 px-2 text-left">No signup needed</td>
+                      <td className="py-3 px-2 text-center"><Check className="w-5 h-5 text-green-500 mx-auto" /></td>
+                      <td className="py-3 px-2 text-center"><X className="w-5 h-5 text-gray-300 dark:text-gray-600 mx-auto" /></td>
+                      <td className="py-3 px-2 text-center"><X className="w-5 h-5 text-gray-300 dark:text-gray-600 mx-auto" /></td>
+                    </tr>
+                    <tr className="border-b border-gray-100 dark:border-gray-800/50">
+                      <td className="py-3 px-2 text-left">No data on servers</td>
+                      <td className="py-3 px-2 text-center"><Check className="w-5 h-5 text-green-500 mx-auto" /></td>
+                      <td className="py-3 px-2 text-center"><X className="w-5 h-5 text-gray-300 dark:text-gray-600 mx-auto" /></td>
+                      <td className="py-3 px-2 text-center"><X className="w-5 h-5 text-gray-300 dark:text-gray-600 mx-auto" /></td>
+                    </tr>
+                    <tr className="border-b border-gray-100 dark:border-gray-800/50">
+                      <td className="py-3 px-2 text-left">Password protection</td>
+                      <td className="py-3 px-2 text-center"><span className="text-xs text-primary-600 dark:text-primary-400">Pro</span></td>
+                      <td className="py-3 px-2 text-center"><X className="w-5 h-5 text-gray-300 dark:text-gray-600 mx-auto" /></td>
+                      <td className="py-3 px-2 text-center"><X className="w-5 h-5 text-gray-300 dark:text-gray-600 mx-auto" /></td>
+                    </tr>
+                    <tr className="border-b border-gray-100 dark:border-gray-800/50">
+                      <td className="py-3 px-2 text-left">Open source</td>
+                      <td className="py-3 px-2 text-center"><Check className="w-5 h-5 text-green-500 mx-auto" /></td>
+                      <td className="py-3 px-2 text-center"><X className="w-5 h-5 text-gray-300 dark:text-gray-600 mx-auto" /></td>
+                      <td className="py-3 px-2 text-center"><X className="w-5 h-5 text-gray-300 dark:text-gray-600 mx-auto" /></td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-2 text-left">Free tier</td>
+                      <td className="py-3 px-2 text-center"><Check className="w-5 h-5 text-green-500 mx-auto" /></td>
+                      <td className="py-3 px-2 text-center"><Check className="w-5 h-5 text-green-500 mx-auto" /></td>
+                      <td className="py-3 px-2 text-center"><Check className="w-5 h-5 text-green-500 mx-auto" /></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* FAQ Section */}
+            <div className="mt-16 pt-12 border-t border-gray-200 dark:border-gray-800">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">
+                FAQ
+              </h2>
+              <div className="space-y-3 text-left">
+                {[
+                  { q: 'Is my data safe?', a: 'Yes! Your calendar is encoded directly in the URL. We never see, store, or have access to your data. It\'s completely client-side.' },
+                  { q: 'Can I password protect my calendar?', a: 'Yes! Pro users can add AES-256 encryption with a password. Only people with the password can view the calendar.' },
+                  { q: 'Does it work with Google/Apple Calendar?', a: 'Absolutely. Recipients can export events to Google Calendar, Apple Calendar, Outlook, or download as .ics file with one click.' },
+                  { q: 'What happens if I lose the link?', a: 'Since data is in the URL, we can\'t recover it. We recommend bookmarking important calendar links or saving them somewhere safe.' },
+                ].map((faq, i) => (
+                  <div key={i} className="rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+                    <button
+                      onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                      className="w-full flex items-center justify-between p-4 text-left bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                    >
+                      <span className="font-medium text-gray-900 dark:text-white">{faq.q}</span>
+                      <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
+                    </button>
+                    {openFaq === i && (
+                      <div className="px-4 pb-4 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-900">
+                        {faq.a}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
@@ -333,12 +461,14 @@ function App() {
           </div>
         )}
 
-        {/* Events list */}
-        <EventList
-          events={calendar.events}
-          onRemove={isViewing ? undefined : removeEvent}
-          readonly={isViewing}
-        />
+        {/* Events list - only show when creating or viewing, not on landing page */}
+        {(isViewing || showForm || calendar.events.length > 0) && (
+          <EventList
+            events={calendar.events}
+            onRemove={isViewing ? undefined : removeEvent}
+            readonly={isViewing}
+          />
+        )}
 
         {/* Action buttons */}
         {!isViewing && calendar.events.length > 0 && (
@@ -412,6 +542,14 @@ function App() {
               rel="noopener noreferrer"
             >
               Open Source
+            </a>
+            {' · '}
+            <a href="/terms" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+              Terms
+            </a>
+            {' · '}
+            <a href="/privacy" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+              Privacy
             </a>
           </p>
           <p className="text-xs text-gray-400 dark:text-gray-600 mt-2">
