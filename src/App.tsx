@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Share2, Plus, Calendar as CalendarIcon, Zap, Shield, Clock, ArrowRight, Sparkles, Users, Briefcase, PartyPopper, Lock, ChevronDown, Check, X } from 'lucide-react';
+import { Share2, Plus, Calendar as CalendarIcon, Zap, Shield, Clock, ArrowRight, Sparkles, Users, Briefcase, PartyPopper, Lock, ChevronDown, Check, X, Eye } from 'lucide-react';
 import { Header } from './components/Header';
 import { EventForm } from './components/EventForm';
 import { EventList } from './components/EventList';
