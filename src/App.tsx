@@ -401,12 +401,14 @@ function App() {
           </div>
         )}
 
-        {/* Events list */}
-        <EventList
-          events={calendar.events}
-          onRemove={isViewing ? undefined : removeEvent}
-          readonly={isViewing}
-        />
+        {/* Events list - only show when creating or viewing, not on landing page */}
+        {(isViewing || showForm || calendar.events.length > 0) && (
+          <EventList
+            events={calendar.events}
+            onRemove={isViewing ? undefined : removeEvent}
+            readonly={isViewing}
+          />
+        )}
 
         {/* Action buttons */}
         {!isViewing && calendar.events.length > 0 && (
